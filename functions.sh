@@ -25,3 +25,20 @@ function config-aws-cli {
   [ "$ACCOUNT" ] && echo "INFO: Using AWS account $ACCOUNT" || {
     echo "ERROR: default profile is missconfigured!"; exit 1; }
 }
+
+function latest-rhel-ami {
+  echo "INFO: Looking for a base RHEL image..."
+  BASEIMAGE=`aws --profile default ec2 describe-images --owners $RHELACC | egrep "ImageId|Name.*RHEL-.*_HVM"|grep -A1 RHEL|grep -v ^-|sed 'N;s/\n/ /'|sort -r|head -n1`
+  AMI=`echo $BASEIMAGE | cut -d \" -f8`
+  AMINAME=`echo $BASEIMAGE | cut -d \" -f4`
+  echo "$AMI"|grep "^ami-" && echo $AMINAME|grep "^RHEL-"|| \
+    { echo "ERROR: Unexpected AMI info: $BASEIMAGE"; exit 1; }
+}
+
+function key-cutter {
+  DATADIR=$MYDIR/.data
+  mkdir $DATADIR 2> /dev/null && chmod 700 $DATADIR
+  aws ec2 create-key-pair --key-name CloudBattery | grep KeyMaterial | cut -d \" -f4 | sed 's/\\n/\
+/g' > $DATADIR/key && chmod 400 $DATADIR/key
+  file $DATADIR/key || { echo "ERROR: ssh key failed to create: "; cat $DATADIR/log; exit 1; }
+}

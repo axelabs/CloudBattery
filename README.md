@@ -5,3 +5,8 @@ Deploy and run Gatling in AWS.
 ```
 ./barrage
 ```
+
+## Pre-requists
+AWS admin user keys
+AWS CLI (will be downloaded if possible)
+ssh-keygen

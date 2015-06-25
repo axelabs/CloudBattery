@@ -6,10 +6,16 @@ FUNCTIONS="functions.sh"
 PROFILE="--profile default"
 LAWS=~/bin/aws
 PATH=$PATH:~/bin
+RHELACC=309956199498 # Redhats AWS account
+
 # Source custom functions
 . $MYDIR/$FUNCTIONS
 
 # Requirement checks
 check-aws-cli && config-aws-cli
 
-aws --version
+# Get Latest RHEL AMI
+latest-rhel-ami && echo "INFO: $AMI - $AMINAME"
+
+# Create keys
+key-cutter
