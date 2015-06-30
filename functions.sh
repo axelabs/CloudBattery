@@ -16,7 +16,7 @@ function check-aws-cli {
 }
 
 function config-aws-cli {
-  ACCOUNT=`aws $PROFILE iam get-user | awk -F: '/arn:aws:/{print $6}'`
+  ACCOUNT=`aws $OUTPUT $PROFILE iam get-user | awk -F: '/arn:aws:/{print $6}'`
   [ "$ACCOUNT" ] || {
     echo "It looks like the default profile does not work. Configure it..." 
     aws $PROFILE configure
@@ -28,10 +28,10 @@ function config-aws-cli {
 
 function latest-rhel-ami {
   echo "INFO: Looking for a base RHEL image..."
-  BASEIMAGE=`aws --profile default ec2 describe-images --owners $RHELACC | egrep "ImageId|Name.*RHEL-.*_HVM"|grep -A1 RHEL|grep -v ^-|sed 'N;s/\n/ /'|sort -r|head -n1`
-  AMI=`echo $BASEIMAGE | cut -d \" -f8`
-  AMINAME=`echo $BASEIMAGE | cut -d \" -f4`
-  echo "$AMI"|grep "^ami-" && echo $AMINAME|grep "^RHEL-"|| \
+  BASEIMAGE=`aws $OUTPUT $PROFILE ec2 describe-images --owners $RHELACC | awk -F"\t" '$10~/RHEL-.*HVM/ {print $6"\t"$10}'|sort -k2|tail -n1`
+  AMI=`echo "$BASEIMAGE" | awk -F"\t" '{print $1}'`
+  AMINAME=`echo "$BASEIMAGE" | awk -F"\t" '{print $2}'` 
+  echo "$AMI"|grep -q "^ami-" && echo $AMINAME|grep -q "^RHEL-"|| \
     { echo "ERROR: Unexpected AMI info: $BASEIMAGE"; exit 1; }
 }
 

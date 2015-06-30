@@ -4,6 +4,7 @@
 MYDIR=`dirname $0`
 FUNCTIONS="functions.sh"
 PROFILE="--profile default"
+OUTPUT="--output text"
 LAWS=~/bin/aws
 PATH=$PATH:~/bin
 RHELACC=309956199498 # Redhats AWS account
@@ -19,3 +20,8 @@ latest-rhel-ami && echo "INFO: $AMI - $AMINAME"
 
 # Create keys
 key-cutter
+
+# Create stack
+aws $OUTPUT $PROFILE cloudformation create-stack --stack-name CloudBattery --template-body file://cloudformation.template
+sleep 30
+aws $OUTPUT $PROFILE cloudformation describe-stacks --stack-name CloudBattery
